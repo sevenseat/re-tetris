@@ -1,0 +1,44 @@
+.board {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  width: 100%;
+  height: calc(var(--box-size) * var(--rows));
+  grid-template: repeat(20, 1fr)/repeat(10, 1fr);
+}
+
+.cell {
+  box-shadow: inset 0 0 0 calc(var(--box-size) * 0.025) rgba(0, 0, 0, 1);
+}
+
+.cell-blank {
+}
+
+.cell-I {
+  background-color: #f00;
+}
+
+.cell-O {
+  background-color: #0f0;
+}
+
+.cell-T {
+  background-color: #00f;
+}
+
+.cell-L {
+  background-color: #0ff;
+}
+
+.cell-Z {
+  background-color: #ff0;
+}
+
+.cell-J {
+  background-color: #f0f;
+}
+
+.cell-S {
+  background-color: #f80;
+}

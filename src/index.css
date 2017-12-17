@@ -1,5 +1,18 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --rows: 20;
+  --columns: 10;
+  --box-size: calc(90vmin / var(--rows));
+}
+
+html,
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #777;
 }

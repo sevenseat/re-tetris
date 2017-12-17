@@ -1,0 +1,16 @@
+.App {
+  position: relative;
+  width: calc(var(--box-size) * var(--columns));
+  height: calc(var(--box-size) * var(--rows));
+  background-color: #333;
+  overflow: hidden;
+}
+
+/* .App-intro {
+  font-size: large;
+}
+
+.github_link {
+  appearance: none;
+  color: #c5f6fa;
+} */
