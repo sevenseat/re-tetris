@@ -108,15 +108,13 @@ let isGameValid = (game) => {
     | (p, [_, ...ws], true) => testRows(p, ws, rowNum + 1)
     | ([p, ...ps], [w, ...ws], false) => testCells(p, w, 0) && testRows(ps, ws, rowNum + 1)
     };
-  game.gpCol >= 0
-  && game.gpRow >= 0
-  && testRows(game.gamePiece, game.well, 0)
+  game.gpCol >= 0 && game.gpRow >= 0 && testRows(game.gamePiece, game.well, 0)
 };
 
 let spawn = (actGame: activeGame) =>
   Active({...actGame, well: getActBoard(actGame), gamePiece: z, gpRow: 0, gpCol: 0});
 
-  let rec transpose = (ls) =>
+let rec transpose = (ls) =>
   switch ls {
   | [] => []
   | [[], ..._] => []
@@ -128,11 +126,9 @@ let act = (game, action) => {
     switch (game, action) {
     | (Over(o), _) => Over(o)
     | (Active(g), Left) => Active({...g, gpCol: g.gpCol - 1})
-    | (Active(g), Right) =>
-      Active({...g, gpCol: g.gpCol + 1})
-    | (Active(g), TurnRight) => Active({...g, gamePiece: g.gamePiece |> List.rev |> transpose })
-    | (Active(g), Down) =>
-      Active({...g, gpRow: g.gpRow + 1})
+    | (Active(g), Right) => Active({...g, gpCol: g.gpCol + 1})
+    | (Active(g), TurnRight) => Active({...g, gamePiece: g.gamePiece |> List.rev |> transpose})
+    | (Active(g), Down) => Active({...g, gpRow: g.gpRow + 1})
     };
   switch (potGame, action) {
   | (Over(o), _) => Over(o)
