@@ -110,10 +110,6 @@ let isGameValid = (game) => {
     };
   game.gpCol >= 0
   && game.gpRow >= 0
-  && game.gpCol <= (wellCols
-  - List.length(List.hd(game.gamePiece)))
-  && game.gpRow <= wellRows
-  - List.length((game.gamePiece))
   && testRows(game.gamePiece, game.well, 0)
 };
 
