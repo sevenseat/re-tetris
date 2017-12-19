@@ -26,7 +26,7 @@
       "prettier --single-quote --write",
       "git add"
     ],
-    "/*.json": ["prettier --single-quote --write", "git add"],
+    "*.json": ["prettier --single-quote --write", "git add"],
     "src/**/*.{re,rei}": ["refmt --in-place", "git add"]
   },
   "devDependencies": {
