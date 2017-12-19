@@ -17,10 +17,10 @@ let renderCell = (cell) => {
   <div className={j|cell cell-$c|j} />
 };
 
-let make = (~board, _children) => {
+let make = (~board, ~className, _children) => {
   ...component,
   render: (_self) =>
-    <div className="board">
+    <div className>
       (
         board
         |> List.rev

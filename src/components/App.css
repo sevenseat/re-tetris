@@ -1,9 +1,45 @@
 .App {
   position: relative;
-  width: calc(var(--box-size) * var(--columns));
-  height: calc(var(--box-size) * var(--rows));
-  background-color: #333;
-  overflow: hidden;
+  display: grid;
+  grid-template-rows: 100px 1fr;
+  grid-template-columns: 1fr 100px;
+  grid-column-gap: 15px;
+  grid-template-areas: 'title title' 'board game-info';
+  font-family: Oswald-light, sans-serif;
+  text-transform: uppercase;
+  background-color: black;
+  color: #fafba0;
+}
+
+.Title {
+  grid-area: title;
+}
+
+.Board {
+  grid-area: board;
+}
+
+.Game-info {
+  grid-area: game-info;
+}
+
+h1 {
+  font-size: 40px;
+  letter-spacing: 10px;
+  font-weight: bold;
+  align-content: center;
+}
+
+h2 {
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+h3 {
+  font-size: 38px;
+  letter-spacing: 1px;
+  padding-left: 15px;
 }
 
 /* .App-intro {

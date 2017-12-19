@@ -40,7 +40,16 @@ let make = (_children) => {
     },
   render: ({state, reduce}) =>
     <EventLayer className="App" onAction=(reduce((direction) => UserEvent(direction)))>
-      <Board board=(Tetris.getBoard(state.game)) />
+      <h1 className="Title"> (ReasonReact.stringToElement("Re-Tetris")) </h1>
+      <Board className="board" board=(Tetris.getBoard(state.game)) />
+      <div className="Game-info">
+        <h2> (ReasonReact.stringToElement("Lines")) </h2>
+        <h3> (ReasonReact.stringToElement("0")) </h3>
+        <h2> (ReasonReact.stringToElement("Level")) </h2>
+        <h3> (ReasonReact.stringToElement("0")) </h3>
+        <h2> (ReasonReact.stringToElement("Score")) </h2>
+        <h3> (ReasonReact.stringToElement("0")) </h3>
+      </div>
       <GameOver
         gameOver=(
           switch state.game {

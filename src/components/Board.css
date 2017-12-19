@@ -1,11 +1,15 @@
 .board {
-  position: absolute;
+  --rows: 20;
+  --columns: 10;
+  --box-size: calc(70vmin / var(--rows));
+
   top: 0;
   left: 0;
   display: grid;
-  width: 100%;
+  width: calc(var(--box-size) * var(--columns));
   height: calc(var(--box-size) * var(--rows));
   grid-template: repeat(20, 1fr)/repeat(10, 1fr);
+  background-color: #333;
 }
 
 .cell {
