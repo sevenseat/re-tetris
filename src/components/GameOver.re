@@ -17,7 +17,7 @@ let make = (~gameOver, ~score, ~onReplay, _) => {
           </div>
         </div>
         <div className="to_github">
-          <a className="github_link" href="https://github.com/sevenseat/rr-2048">
+          <a className="github_link" href="https://github.com/sevenseat/re-tetris">
             (ReasonReact.stringToElement("Star this project on github"))
           </a>
         </div>

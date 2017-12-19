@@ -36,10 +36,20 @@ let make = (_children) => {
           )
       })
     | Tick => ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.Down)})
-    | Restart => ReasonReact.NoUpdate
+    | Restart => ReasonReact.Update({...state, game: Tetris.init()})
     },
   render: ({state, reduce}) =>
     <EventLayer className="App" onAction=(reduce((direction) => UserEvent(direction)))>
       <Board board=(Tetris.getBoard(state.game)) />
+      <GameOver
+        gameOver=(
+          switch state.game {
+          | Over(_) => true
+          | Active(_) => false
+          }
+        )
+        score=0
+        onReplay=(reduce((_event) => Restart))
+      />
     </EventLayer>
 };
