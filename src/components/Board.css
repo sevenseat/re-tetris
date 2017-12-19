@@ -20,29 +20,29 @@
 }
 
 .cell-I {
-  background-color: #f00;
-}
-
-.cell-O {
-  background-color: #0f0;
-}
-
-.cell-T {
-  background-color: #00f;
-}
-
-.cell-L {
-  background-color: #0ff;
-}
-
-.cell-Z {
-  background-color: #ff0;
+  background-color: cyan;
 }
 
 .cell-J {
-  background-color: #f0f;
+  background-color: blue;
+}
+
+.cell-L {
+  background-color: orange;
+}
+
+.cell-O {
+  background-color: yellow;
 }
 
 .cell-S {
-  background-color: #f80;
+  background-color: green;
+}
+
+.cell-T {
+  background-color: purple;
+}
+
+.cell-Z {
+  background-color: red;
 }
