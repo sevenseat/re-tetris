@@ -47,6 +47,8 @@ type action =
 
 type activeGame = {
   well,
+  lines: int,
+  level: int,
   score: int,
   tetroid,
   tBottom: int,
@@ -56,6 +58,8 @@ type activeGame = {
 
 type overGame = {
   well,
+  lines: int,
+  level: int,
   score: int
 };
 
@@ -139,12 +143,15 @@ let spawn = (ag: activeGame) => {
     tLeft: (wellCols - List.(length(hd(tetroid)))) / 2,
     bag: newBag
   };
-  validateGame(newAg) ? Active(newAg) : Over({well: ag.well, score: ag.score})
+  validateGame(newAg) ?
+    Active(newAg) : Over({well: ag.well, lines: ag.lines, level: ag.level, score: ag.score})
 };
 
 let init = () =>
   spawn({
     well: Array.(make_matrix(wellRows, wellCols, Blank) |> map(to_list) |> to_list),
+    lines: 0,
+    level: 1,
     score: 0,
     tetroid: i,
     tBottom: 0,
@@ -238,10 +245,22 @@ let act = (game, action) =>
     | (true, _) => Active(potGame)
     | (false, Left | Right | TurnLeft | TurnRight) => game
     | (false, Down) =>
-      let well =
-        getOverlaidBoard(ag)
-        |> List.filter(List.exists((cell) => cell === Blank))
-        |> padTrim(Array.(make(wellCols, Blank) |> to_list), wellRows);
-      spawn({...ag, well})
+      let packedWell = getOverlaidBoard(ag) |> List.filter(List.exists((cell) => cell === Blank));
+      let lines = wellRows - List.length(packedWell);
+      let level = ag.lines + lines <= ag.level * 3 ? ag.level : ag.level + 1;
+      let score =
+        ag.score
+        + level
+        * (
+          switch lines {
+          | 1 => 100
+          | 2 => 300
+          | 3 => 500
+          | 4 => 800
+          | _ => 0 /* shouldn't happen */
+          }
+        );
+      let well = packedWell |> padTrim(Array.(make(wellCols, Blank) |> to_list), wellRows);
+      spawn({...ag, well, level, lines: ag.lines + lines, score})
     }
   };

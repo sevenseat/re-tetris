@@ -10,6 +10,13 @@ type action =
   | UserEvent(EventLayer.direction)
   | Restart;
 
+type gameInfo = {
+  over: bool,
+  score: int,
+  level: int,
+  lines: int
+};
+
 let component = ReasonReact.reducerComponent("App");
 
 let make = (_children) => {
@@ -38,27 +45,28 @@ let make = (_children) => {
     | Tick => ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.Down)})
     | Restart => ReasonReact.Update({...state, game: Tetris.init()})
     },
-  render: ({state, reduce}) =>
+  render: ({state, reduce}) => {
+    let gameInfo =
+      switch state.game {
+      | Over(og) => {over: true, level: og.level, lines: og.lines, score: og.score}
+      | Active(ag) => {over: false, level: ag.level, lines: ag.lines, score: ag.score}
+      };
     <EventLayer className="App" onAction=(reduce((direction) => UserEvent(direction)))>
       <h1 className="Title"> (ReasonReact.stringToElement("Re-Tetris")) </h1>
       <Board className="board" board=(Tetris.getBoard(state.game)) />
       <div className="Game-info">
         <h2> (ReasonReact.stringToElement("Lines")) </h2>
-        <h3> (ReasonReact.stringToElement("0")) </h3>
+        <h3> (ReasonReact.stringToElement(string_of_int(gameInfo.lines))) </h3>
         <h2> (ReasonReact.stringToElement("Level")) </h2>
-        <h3> (ReasonReact.stringToElement("0")) </h3>
+        <h3> (ReasonReact.stringToElement(string_of_int(gameInfo.level))) </h3>
         <h2> (ReasonReact.stringToElement("Score")) </h2>
-        <h3> (ReasonReact.stringToElement("0")) </h3>
+        <h3> (ReasonReact.stringToElement(string_of_int(gameInfo.score))) </h3>
       </div>
       <GameOver
-        gameOver=(
-          switch state.game {
-          | Over(_) => true
-          | Active(_) => false
-          }
-        )
-        score=0
+        gameOver=gameInfo.over
+        score=gameInfo.score
         onReplay=(reduce((_event) => Restart))
       />
     </EventLayer>
+  }
 };
