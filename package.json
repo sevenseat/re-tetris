@@ -1,8 +1,15 @@
 {
   "name": "re-tetris",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "homepage": "https://sevenseat.github.io/re-tetris",
+  "keywords": ["tetris", "reasonml", "bucklescript", "react"],
+  "author": "John Schweikert",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sevenseat/re-tetris.git"
+  },
   "dependencies": {
     "gh-pages": "^1.1.0",
     "husky": "^0.14.3",
@@ -18,6 +25,10 @@
     "precommit": "lint-staged",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
+    "format": "npm run format:refmt; npm run format:prettier",
+    "format:prettier":
+      "prettier --single-quote --write src/**/*.{js,jsx,json,css} *.json",
+    "format:refmt": "refmt --in-place src/**/*.re",
     "test": "react-scripts test --env=jsdom",
     "prepare": "npm link bs-platform"
   },
