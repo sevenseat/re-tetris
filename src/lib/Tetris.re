@@ -208,6 +208,20 @@ let rec transpose = (ls) =>
   | ls => [List.map(List.hd, ls), ...transpose(List.map(List.tl, ls))]
   };
 
+let all = (x) => {
+  let rec xs = [x, ...xs];
+  xs
+};
+
+let rec take = (n, ls) =>
+  switch (n, ls) {
+  | (_, []) => []
+  | (0, _) => []
+  | (_, [x, ...xs]) => [x, ...take(n - 1, xs)]
+  };
+
+let padTrim = (e, n, ls) => take(n, ls @ all(e));
+
 let act = (game, action) =>
   switch game {
   | Over(og) => Over(og)
@@ -223,6 +237,11 @@ let act = (game, action) =>
     switch (validateGame(potGame), action) {
     | (true, _) => Active(potGame)
     | (false, Left | Right | TurnLeft | TurnRight) => game
-    | (false, Down) => spawn({...ag, well: getOverlaidBoard(ag)})
+    | (false, Down) =>
+      let well =
+        getOverlaidBoard(ag)
+        |> List.filter(List.exists((cell) => cell === Blank))
+        |> padTrim(Array.(make(wellCols, Blank) |> to_list), wellRows);
+      spawn({...ag, well})
     }
   };
