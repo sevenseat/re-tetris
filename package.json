@@ -5,6 +5,9 @@
   "homepage": "https://sevenseat.github.io/re-tetris",
   "dependencies": {
     "gh-pages": "^1.1.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^6.0.0",
+    "prettier": "^1.9.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "reason-scripts": "0.8.0"
@@ -12,10 +15,19 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "precommit": "lint-staged",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "test": "react-scripts test --env=jsdom",
     "prepare": "npm link bs-platform"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,json,css}": [
+      "prettier --single-quote --write",
+      "git add"
+    ],
+    "/*.json": ["prettier --single-quote --write", "git add"],
+    "src/**/*.{re,rei}": ["refmt --in-place", "git add"]
   },
   "devDependencies": {
     "bs-jest": "^0.2.0",
