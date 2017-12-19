@@ -2,7 +2,7 @@ let wellRows = 20;
 
 let wellCols = 10;
 
-type tetroid =
+type tetCell =
   | I
   | J
   | L
@@ -12,37 +12,46 @@ type tetroid =
   | Z;
 
 type cell =
-  | Full(tetroid)
+  | Full(tetCell)
   | Blank;
 
-let i = [[Full(I), Full(I), Full(I), Full(I)]];
+let i = [
+  [Blank, Blank, Blank, Blank],
+  [Full(I), Full(I), Full(I), Full(I)],
+  [Blank, Blank, Blank, Blank],
+  [Blank, Blank, Blank, Blank]
+];
 
-let j = [[Full(J), Blank, Blank], [Full(J), Full(J), Full(J)]];
+let j = [[Full(J), Blank, Blank], [Full(J), Full(J), Full(J)], [Blank, Blank, Blank]];
 
-let l = [[Blank, Blank, Full(L)], [Full(L), Full(L), Full(L)]];
+let l = [[Blank, Blank, Full(L)], [Full(L), Full(L), Full(L)], [Blank, Blank, Blank]];
 
 let o = [[Full(O), Full(O)], [Full(O), Full(O)]];
 
-let s = [[Blank, Full(S), Full(S)], [Full(S), Full(S), Blank]];
+let s = [[Blank, Full(S), Full(S)], [Full(S), Full(S), Blank], [Blank, Blank, Blank]];
 
-let t = [[Full(T), Full(T), Full(T)], [Blank, Full(T), Blank]];
+let t = [[Blank, Blank, Blank], [Full(T), Full(T), Full(T)], [Blank, Full(T), Blank]];
 
-let z = [[Full(Z), Full(Z), Blank], [Blank, Full(Z), Full(Z)]];
+let z = [[Full(Z), Full(Z), Blank], [Blank, Full(Z), Full(Z)], [Blank, Blank, Blank]];
 
 type well = list(list(cell));
+
+type tetroid = list(list(cell));
 
 type action =
   | Left
   | Right
+  | TurnLeft
   | TurnRight
   | Down;
 
 type activeGame = {
   well,
   score: int,
-  gamePiece: list(list(cell)),
-  gpRow: int,
-  gpCol: int
+  tetroid,
+  tBottom: int,
+  tLeft: int,
+  bag: list(tetroid)
 };
 
 type overGame = {
@@ -54,65 +63,143 @@ type game =
   | Active(activeGame)
   | Over(overGame);
 
+let validateGame = (game) => {
+  let rec testCells = (tCells, wCells, col) =>
+    switch (tCells, wCells, col < game.tLeft, col < 0) {
+    | ([Blank, ...ts], w, _, true) =>
+      /* left of Well w/ Blank Tetroid*/
+      testCells(ts, w, col + 1)
+    | ([Full(_), ..._], _, _, true) =>
+      /* left of Well w/ Full Tetroid*/
+      false
+    | ([Blank, ...ts], [], _, _) =>
+      /* right of Well w/ Blank Tetroid*/
+      testCells(ts, [], col + 1)
+    | ([Full(_), ..._], [], _, _) =>
+      /* right of Well w/ Full Tetroid*/
+      false
+    | (t, [_, ...ws], true, false) =>
+      /* left of Tetroid */
+      testCells(t, ws, col + 1)
+    | ([], _, _, _) =>
+      /* right of Tetroid */
+      true
+    | ([Blank, ...ts], [_, ...ws], false, false) =>
+      /* Within Tetroid - Tetroid is blank */
+      testCells(ts, ws, col + 1)
+    | ([_, ...ts], [Blank, ...ws], false, false) =>
+      /* Within Tetroid - Well is blank */
+      testCells(ts, ws, col + 1)
+    | ([Full(_), ..._], [Full(_), ..._], false, false) =>
+      /* Within Tetroid - Well and Tetroid are Full */
+      false
+    };
+  let rowIsBlank = List.for_all((cell) => cell === Blank);
+  let rec testRows = (tRows, wRows, row) =>
+    switch (tRows, wRows, row < game.tBottom, row < 0) {
+    | ([t, ...ts], w, _, true) =>
+      /* below Well */
+      rowIsBlank(t) && testRows(ts, w, row + 1)
+    | ([_, ...ts], [], _, _) =>
+      /* above Well */
+      testRows(ts, [], row + 1)
+    | (t, [_, ...ws], true, false) =>
+      /* below Tetroid */
+      testRows(t, ws, row + 1)
+    | ([], _, _, _) =>
+      /* above Tetroid */
+      true
+    | ([t, ...ts], [w, ...ws], false, false) =>
+      /* within tetroid row */
+      testCells(t, w, min(game.tLeft, 0)) && testRows(ts, ws, row + 1)
+    };
+  testRows(game.tetroid, game.well, min(game.tBottom, 0))
+};
+
+let genBag = () => {
+  let ag = [|i, j, l, o, s, t, z|];
+  let n = Array.length(ag);
+  for (i in n - 1 downto 1) {
+    let k = Js.Math.random_int(0, i + 1);
+    let x = ag[k];
+    ag[k] = ag[i];
+    ag[i] = x
+  };
+  ag |> Array.to_list
+};
+
+let spawn = (ag: activeGame) => {
+  let bag = ag.bag === [] ? genBag() : ag.bag;
+  let tetroid = List.hd(bag);
+  let newBag = List.tl(bag);
+  let newAg = {
+    ...ag,
+    tetroid,
+    tBottom: 22 - List.length(tetroid),
+    tLeft: (wellCols - List.(length(hd(tetroid)))) / 2,
+    bag: newBag
+  };
+  validateGame(newAg) ? Active(newAg) : Over({well: ag.well, score: ag.score})
+};
+
 let init = () =>
-  Active({
-    well: Array.make_matrix(wellRows, wellCols, Blank) |> Array.to_list |> List.map(Array.to_list),
+  spawn({
+    well: Array.(make_matrix(wellRows, wellCols, Blank) |> map(to_list) |> to_list),
     score: 0,
-    gamePiece: t,
-    gpRow: 3,
-    gpCol: 4
+    tetroid: i,
+    tBottom: 0,
+    tLeft: 0,
+    bag: genBag()
   });
 
-let getActBoard = (a) => {
-  let rec processCells = (pCells, wCells, colNum) =>
-    switch (pCells, wCells, colNum < a.gpCol) {
-    | (_, [], _) => [] /* This shouldn't happen */
-    | ([], w, _) => w
-    | (p, [w, ...ws], true) => [w, ...processCells(p, ws, colNum + 1)]
-    | ([Blank, ...ps], [w, ...ws], false) => [w, ...processCells(ps, ws, colNum + 1)]
-    | ([p, ...ps], [_, ...ws], false) => [p, ...processCells(ps, ws, colNum + 1)]
+let getOverlaidBoard = (ag) => {
+  let rec getCells = (tCells, wCells, col) =>
+    switch (tCells, wCells, col < ag.tLeft, col < 0) {
+    | ([_, ...ts], w, _, true) =>
+      /* left of Well */
+      getCells(ts, w, col + 1)
+    | (_, [], _, _) =>
+      /* right of Well */
+      []
+    | (t, [w, ...ws], true, false) =>
+      /* left of Tetroid */
+      [w, ...getCells(t, ws, col + 1)]
+    | ([], w, _, _) =>
+      /* right of Tetroid */
+      w
+    | ([Blank, ...ts], [w, ...ws], false, false) =>
+      /* Within Tetroid - Tetroid is blank */
+      [w, ...getCells(ts, ws, col + 1)]
+    | ([Full(t), ...ts], [_, ...ws], false, false) =>
+      /* Within Tetroid - Tetroid is Full */
+      [Full(t), ...getCells(ts, ws, col + 1)]
     };
-  let rec processRows = (pRows, wRows, rowNum) =>
-    switch (pRows, wRows, rowNum < a.gpRow) {
-    | (_, [], _) => [] /* This shouldn't happen */
-    | ([], w, _) => w
-    | (p, [w, ...ws], true) => [w, ...processRows(p, ws, rowNum + 1)]
-    | ([p, ...ps], [w, ...ws], false) => [
-        processCells(p, w, 0),
-        ...processRows(ps, ws, rowNum + 1)
-      ]
+  let rec getRows = (tBottoms, wRows, row) =>
+    switch (tBottoms, wRows, row < ag.tBottom, row < 0) {
+    | ([_, ...ts], w, _, true) =>
+      /* below Well */
+      getRows(ts, w, row + 1)
+    | (_, [], _, _) =>
+      /* above Well */
+      []
+    | (t, [w, ...ws], true, false) =>
+      /* below Tetroid */
+      [w, ...getRows(t, ws, row + 1)]
+    | ([], w, _, _) =>
+      /* above Tetroid */
+      w
+    | ([t, ...ts], [w, ...ws], false, false) =>
+      /* within tetroid row */
+      [getCells(t, w, min(ag.tLeft, 0)), ...getRows(ts, ws, row + 1)]
     };
-  processRows(a.gamePiece, a.well, 0)
+  getRows(ag.tetroid, ag.well, min(ag.tBottom, 0))
 };
 
 let getBoard = (game) =>
   switch game {
-  | Over(o) => o.well
-  | Active(a) => getActBoard(a)
+  | Over(og) => og.well
+  | Active(ag) => getOverlaidBoard(ag)
   };
-
-let isGameValid = (game) => {
-  let rec testCells = (pCells, wCells, colNum) =>
-    switch (pCells, wCells, colNum < game.gpCol) {
-    | ([], _, _) => true
-    | (_, [], _) => false
-    | (p, [_, ...ws], true) => testCells(p, ws, colNum + 1)
-    | ([Blank, ...ps], [_, ...ws], false) => testCells(ps, ws, colNum + 1)
-    | ([_, ...ps], [Blank, ...ws], false) => testCells(ps, ws, colNum + 1)
-    | ([Full(_), ..._], [Full(_), ..._], false) => false
-    };
-  let rec testRows = (pRows, wRows, rowNum) =>
-    switch (pRows, wRows, rowNum < game.gpRow) {
-    | ([], _, _) => true
-    | (_, [], _) => false
-    | (p, [_, ...ws], true) => testRows(p, ws, rowNum + 1)
-    | ([p, ...ps], [w, ...ws], false) => testCells(p, w, 0) && testRows(ps, ws, rowNum + 1)
-    };
-  game.gpCol >= 0 && game.gpRow >= 0 && testRows(game.gamePiece, game.well, 0)
-};
-
-let spawn = (actGame: activeGame) =>
-  Active({...actGame, well: getActBoard(actGame), gamePiece: z, gpRow: 0, gpCol: 0});
 
 let rec transpose = (ls) =>
   switch ls {
@@ -121,19 +208,21 @@ let rec transpose = (ls) =>
   | ls => [List.map(List.hd, ls), ...transpose(List.map(List.tl, ls))]
   };
 
-let act = (game, action) => {
-  let potGame =
-    switch (game, action) {
-    | (Over(o), _) => Over(o)
-    | (Active(g), Left) => Active({...g, gpCol: g.gpCol - 1})
-    | (Active(g), Right) => Active({...g, gpCol: g.gpCol + 1})
-    | (Active(g), TurnRight) => Active({...g, gamePiece: g.gamePiece |> List.rev |> transpose})
-    | (Active(g), Down) => Active({...g, gpRow: g.gpRow + 1})
-    };
-  switch (potGame, action) {
-  | (Over(o), _) => Over(o)
-  | (Active(g), Down) when ! isGameValid(g) => game
-  | (Active(g), _) when ! isGameValid(g) => game
-  | (Active(_), _) => potGame
-  }
-};
+let act = (game, action) =>
+  switch game {
+  | Over(og) => Over(og)
+  | Active(ag) =>
+    let potGame =
+      switch action {
+      | Left => {...ag, tLeft: ag.tLeft - 1}
+      | Right => {...ag, tLeft: ag.tLeft + 1}
+      | TurnLeft => {...ag, tetroid: ag.tetroid |> List.rev |> transpose}
+      | TurnRight => {...ag, tetroid: ag.tetroid |> transpose |> List.rev}
+      | Down => {...ag, tBottom: ag.tBottom - 1}
+      };
+    switch (validateGame(potGame), action) {
+    | (true, _) => Active(potGame)
+    | (false, Left | Right | TurnLeft | TurnRight) => game
+    | (false, Down) => spawn({...ag, well: getOverlaidBoard(ag)})
+    }
+  };

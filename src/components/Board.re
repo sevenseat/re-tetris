@@ -22,7 +22,12 @@ let make = (~board, _children) => {
   render: (_self) =>
     <div className="board">
       (
-        board |> List.flatten |> List.map(renderCell) |> Array.of_list |> ReasonReact.arrayToElement
+        board
+        |> List.rev
+        |> List.flatten
+        |> List.map(renderCell)
+        |> Array.of_list
+        |> ReasonReact.arrayToElement
       )
     </div>
 };
