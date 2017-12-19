@@ -3,9 +3,6 @@
 }
 
 :root {
-  --rows: 20;
-  --columns: 10;
-  --box-size: calc(90vmin / var(--rows));
 }
 
 html,
@@ -15,4 +12,5 @@ body {
   justify-content: center;
   align-items: center;
   background-color: #777;
+  overflow: hidden;
 }
