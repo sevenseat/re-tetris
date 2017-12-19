@@ -1,8 +1,12 @@
 [%bs.raw {|require('./App.css')|}];
 
-type state = {game: Tetris.game};
+type state = {
+  game: Tetris.game,
+  timerId: ref(option(Js.Global.intervalId))
+};
 
 type action =
+  | Tick
   | UserEvent(EventLayer.direction)
   | Restart;
 
@@ -10,15 +14,28 @@ let component = ReasonReact.reducerComponent("App");
 
 let make = (_children) => {
   ...component,
-  initialState: () => {game: Tetris.init()},
+  initialState: () => {game: Tetris.init(), timerId: ref(None)},
+  didMount: (self) => {
+    self.state.timerId := Some(Js.Global.setInterval(self.reduce((_) => Tick), 500));
+    ReasonReact.NoUpdate
+  },
   reducer: (action, state) =>
     switch action {
-    | UserEvent(EventLayer.Left) => ReasonReact.Update({game: Tetris.act(state.game, Tetris.Left)})
-    | UserEvent(EventLayer.Right) =>
-      ReasonReact.Update({game: Tetris.act(state.game, Tetris.Right)})
-    | UserEvent(EventLayer.Up) =>
-      ReasonReact.Update({game: Tetris.act(state.game, Tetris.TurnRight)})
-    | UserEvent(EventLayer.Down) => ReasonReact.Update({game: Tetris.act(state.game, Tetris.Down)})
+    | UserEvent(direction) =>
+      ReasonReact.Update({
+        ...state,
+        game:
+          Tetris.act(
+            state.game,
+            switch direction {
+            | EventLayer.Left => Tetris.Left
+            | EventLayer.Right => Tetris.Right
+            | EventLayer.Up => Tetris.TurnRight
+            | EventLayer.Down => Tetris.Down
+            }
+          )
+      })
+    | Tick => ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.Down)})
     | Restart => ReasonReact.NoUpdate
     },
   render: ({state, reduce}) =>
