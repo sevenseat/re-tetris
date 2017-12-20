@@ -22,8 +22,21 @@ let component = ReasonReact.reducerComponent("App");
 let make = (_children) => {
   ...component,
   initialState: () => {game: Tetris.init(), timerId: ref(None)},
-  didMount: (self) => {
-    self.state.timerId := Some(Js.Global.setInterval(self.reduce((_) => Tick), 500));
+  didMount: ({state, reduce}) => {
+    let level =
+      switch state.game {
+      | Active(ag) => ag.level
+      | Over(og) => og.level
+      };
+    state.timerId :=
+      Some(
+        Js.Global.setInterval(
+          reduce((_) => Tick),
+          int_of_float(
+            1000.0 *. ((0.8 -. 0.007 *. float_of_int(level - 1)) ** float_of_int(level - 1))
+          )
+        )
+      );
     ReasonReact.NoUpdate
   },
   reducer: (action, state) =>
