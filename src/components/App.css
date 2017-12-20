@@ -1,13 +1,15 @@
 .App {
   position: relative;
   display: grid;
-  grid-template-rows: 75px 1fr;
-  grid-template-columns: 1fr 100px;
+  grid-template-rows: 75px 80vh;
+  grid-template-columns: 40vh 100px;
   grid-template-areas: 'title title' 'board game-info';
   font-family: Oswald-light, sans-serif;
   text-transform: uppercase;
   background-color: #37474f;
   color: #ffffff;
+  padding: 10px;
+  border-radius: 8px;
 }
 
 .Title {
@@ -46,12 +48,3 @@ h3 {
   letter-spacing: 1px;
   margin-top: 1px;
 }
-
-/* .App-intro {
-  font-size: large;
-}
-
-.github_link {
-  appearance: none;
-  color: #c5f6fa;
-} */

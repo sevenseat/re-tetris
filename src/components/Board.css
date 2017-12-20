@@ -6,14 +6,20 @@
   top: 0;
   left: 0;
   display: grid;
-  width: calc(var(--box-size) * var(--columns));
-  height: calc(var(--box-size) * var(--rows));
-  grid-template: repeat(20, 1fr)/repeat(10, 1fr);
+  /* height: 78vh;
+  width: 39vh; */
+  /* height: 60vh;
+
+  padding-bottom: 50%; */
+
+  /* width: calc(var(--box-size) * var(--columns));
+  height: calc(var(--box-size) * var(--rows)); */
+  grid-template: repeat(var(--rows), 1fr)/repeat(var(--columns), 1fr);
   background-color: #102027;
 }
 
 .cell {
-  box-shadow: inset 0 0 0 calc(var(--box-size) * 0.025) #37474f;
+  box-shadow: inset 0 0 0 1px #37474f;
 }
 
 .cell-blank {
