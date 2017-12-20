@@ -23,18 +23,21 @@ let make = (_children) => {
   ...component,
   initialState: () => {game: Tetris.init(), timerId: ref(None)},
   didMount: ({state, reduce}) => {
-    let level =
-      switch state.game {
-      | Active(ag) => ag.level
-      | Over(og) => og.level
-      };
+    let prevLevel =
+      float_of_int(
+        (
+          switch state.game {
+          | Active(ag) => ag.level
+          | Over(og) => og.level
+          }
+        )
+        - 1
+      );
     state.timerId :=
       Some(
         Js.Global.setInterval(
           reduce((_) => Tick),
-          int_of_float(
-            1000.0 *. ((0.8 -. 0.007 *. float_of_int(level - 1)) ** float_of_int(level - 1))
-          )
+          int_of_float(1000.0 *. ((0.8 -. 0.007 *. prevLevel) ** prevLevel))
         )
       );
     ReasonReact.NoUpdate
