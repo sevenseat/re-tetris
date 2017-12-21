@@ -16,7 +16,8 @@ type action =
   | Right
   | TurnLeft
   | TurnRight
-  | Down;
+  | Down
+  | HardDrop;
 
 type game;
 

@@ -43,7 +43,8 @@ type action =
   | Right
   | TurnLeft
   | TurnRight
-  | Down;
+  | Down
+  | HardDrop;
 
 type activeGame = {
   well,
@@ -240,11 +241,17 @@ let act = (game, action) =>
       | TurnLeft => {...ag, tetroid: ag.tetroid |> List.rev |> transpose}
       | TurnRight => {...ag, tetroid: ag.tetroid |> transpose |> List.rev}
       | Down => {...ag, tBottom: ag.tBottom - 1}
+      | HardDrop =>
+        let rec findBottom = (validAg) => {
+          let nextAg = {...validAg, tBottom: validAg.tBottom - 1};
+          validateGame(nextAg) ? findBottom(nextAg) : validAg
+        };
+        findBottom(ag)
       };
     switch (validateGame(potGame), action) {
     | (true, _) => Active(potGame)
     | (false, Left | Right | TurnLeft | TurnRight) => game
-    | (false, Down) =>
+    | (false, HardDrop | Down) =>
       let packedWell = getOverlaidBoard(ag) |> List.filter(List.exists((cell) => cell === Blank));
       let lines = wellRows - List.length(packedWell);
       let level = ag.lines + lines <= ag.level * 3 ? ag.level : ag.level + 1;
