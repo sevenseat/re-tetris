@@ -17,6 +17,12 @@ type gameInfo = {
   lines: int
 };
 
+let elementState = (label, value) =>
+  <div>
+    <h2> (ReasonReact.stringToElement(label)) </h2>
+    <h3> (ReasonReact.stringToElement(string_of_int(value))) </h3>
+  </div>;
+
 let component = ReasonReact.reducerComponent("App");
 
 let make = (_children) => {
@@ -57,12 +63,9 @@ let make = (_children) => {
       <h1 className="Title"> (ReasonReact.stringToElement("Re-Tetris")) </h1>
       <Board className="board" board=(Tetris.getBoard(state.game)) />
       <div className="Game-info">
-        <h2> (ReasonReact.stringToElement("Lines")) </h2>
-        <h3> (ReasonReact.stringToElement(string_of_int(Tetris.getLines(state.game)))) </h3>
-        <h2> (ReasonReact.stringToElement("Level")) </h2>
-        <h3> (ReasonReact.stringToElement(string_of_int(Tetris.getLevel(state.game)))) </h3>
-        <h2> (ReasonReact.stringToElement("Score")) </h2>
-        <h3> (ReasonReact.stringToElement(string_of_int(Tetris.getScore(state.game)))) </h3>
+        (elementState("Lines", Tetris.getLines(state.game)))
+        (elementState("Level", Tetris.getLevel(state.game)))
+        (elementState("Score", Tetris.getScore(state.game)))
       </div>
       <GameOver
         gameOver=(! Tetris.isActive(state.game))
