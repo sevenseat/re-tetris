@@ -33,7 +33,7 @@
     "prepare": "npm link bs-platform"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,json,css}": [
+    "src/**/*.{js,jsx,json,css,md}": [
       "prettier --single-quote --write",
       "git add"
     ],
