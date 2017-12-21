@@ -18,20 +18,33 @@ let elementState = (label, value) =>
 
 let component = ReasonReact.reducerComponent("App");
 
+let setTimer = (game, reduce) => {
+  let prevLevel = float_of_int(Tetris.getLevel(game) - 1);
+  Some(
+    Js.Global.setInterval(
+      reduce((_) => Tick),
+      int_of_float(1000.0 *. ((0.8 -. 0.007 *. prevLevel) ** prevLevel))
+    )
+  )
+};
+
 let make = (_children) => {
   ...component,
   initialState: () => {game: Tetris.init(), timerId: ref(None)},
-  didMount: ({state, reduce}) => {
-    let prevLevel = float_of_int(Tetris.getLevel(state.game) - 1);
-    state.timerId :=
-      Some(
-        Js.Global.setInterval(
-          reduce((_) => Tick),
-          int_of_float(1000.0 *. ((0.8 -. 0.007 *. prevLevel) ** prevLevel))
-        )
-      );
+  didMount: (self) => {
+    self.state.timerId := setTimer(self.state.game, self.reduce);
     ReasonReact.NoUpdate
   },
+  didUpdate: ({oldSelf, newSelf}) =>
+    Tetris.getLevel(oldSelf.state.game) === Tetris.getLevel(newSelf.state.game) ?
+      () :
+      {
+        switch oldSelf.state.timerId^ {
+        | None => ()
+        | Some(intervalId) => Js.Global.clearInterval(intervalId)
+        };
+        newSelf.state.timerId := setTimer(newSelf.state.game, newSelf.reduce)
+      },
   reducer: (action, state) =>
     switch action {
     | UserEvent(direction) =>

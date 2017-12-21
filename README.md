@@ -11,7 +11,7 @@ This is a simplified version of Tetris, written in [Reason React](https://reason
 
 ## Todos
 
-* [ ] Levels increase speed of game tick
+* [x] Levels increase speed of game tick
 * [ ] Hard drop
 * [ ] Soft drop increases game tick (rather than moves it down 1 cell)
 * [ ] [SRS](http://tetris.wikia.com/wiki/SRS) - MAYBE.... It's a lot of logic
