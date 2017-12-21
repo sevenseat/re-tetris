@@ -264,3 +264,27 @@ let act = (game, action) =>
       spawn({...ag, well, level, lines: ag.lines + lines, score})
     }
   };
+
+let getLevel = (game) =>
+  switch game {
+  | Active(ag) => ag.level
+  | Over(og) => og.level
+  };
+
+let getScore = (game) =>
+  switch game {
+  | Active(ag) => ag.score
+  | Over(og) => og.score
+  };
+
+let getLines = (game) =>
+  switch game {
+  | Active(ag) => ag.lines
+  | Over(og) => og.lines
+  };
+
+let isActive = (game) =>
+  switch game {
+  | Active(_) => true
+  | Over(_) => false
+  };

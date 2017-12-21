@@ -23,16 +23,7 @@ let make = (_children) => {
   ...component,
   initialState: () => {game: Tetris.init(), timerId: ref(None)},
   didMount: ({state, reduce}) => {
-    let prevLevel =
-      float_of_int(
-        (
-          switch state.game {
-          | Active(ag) => ag.level
-          | Over(og) => og.level
-          }
-        )
-        - 1
-      );
+    let prevLevel = float_of_int(Tetris.getLevel(state.game) - 1);
     state.timerId :=
       Some(
         Js.Global.setInterval(
@@ -61,28 +52,22 @@ let make = (_children) => {
     | Tick => ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.Down)})
     | Restart => ReasonReact.Update({...state, game: Tetris.init()})
     },
-  render: ({state, reduce}) => {
-    let gameInfo =
-      switch state.game {
-      | Over(og) => {over: true, level: og.level, lines: og.lines, score: og.score}
-      | Active(ag) => {over: false, level: ag.level, lines: ag.lines, score: ag.score}
-      };
+  render: ({state, reduce}) =>
     <EventLayer className="App" onAction=(reduce((direction) => UserEvent(direction)))>
       <h1 className="Title"> (ReasonReact.stringToElement("Re-Tetris")) </h1>
       <Board className="board" board=(Tetris.getBoard(state.game)) />
       <div className="Game-info">
         <h2> (ReasonReact.stringToElement("Lines")) </h2>
-        <h3> (ReasonReact.stringToElement(string_of_int(gameInfo.lines))) </h3>
+        <h3> (ReasonReact.stringToElement(string_of_int(Tetris.getLines(state.game)))) </h3>
         <h2> (ReasonReact.stringToElement("Level")) </h2>
-        <h3> (ReasonReact.stringToElement(string_of_int(gameInfo.level))) </h3>
+        <h3> (ReasonReact.stringToElement(string_of_int(Tetris.getLevel(state.game)))) </h3>
         <h2> (ReasonReact.stringToElement("Score")) </h2>
-        <h3> (ReasonReact.stringToElement(string_of_int(gameInfo.score))) </h3>
+        <h3> (ReasonReact.stringToElement(string_of_int(Tetris.getScore(state.game)))) </h3>
       </div>
       <GameOver
-        gameOver=gameInfo.over
-        score=gameInfo.score
+        gameOver=(! Tetris.isActive(state.game))
+        score=(Tetris.getScore(state.game))
         onReplay=(reduce((_event) => Restart))
       />
     </EventLayer>
-  }
 };
