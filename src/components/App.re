@@ -10,13 +10,6 @@ type action =
   | UserEvent(EventLayer.direction)
   | Restart;
 
-type gameInfo = {
-  over: bool,
-  score: int,
-  level: int,
-  lines: int
-};
-
 let elementState = (label, value) =>
   <div>
     <h2> (ReasonReact.stringToElement(label)) </h2>
