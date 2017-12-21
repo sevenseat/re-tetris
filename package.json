@@ -27,7 +27,7 @@
     "deploy": "gh-pages -d build",
     "format": "npm run format:refmt; npm run format:prettier",
     "format:prettier":
-      "prettier --single-quote --write src/**/*.{js,jsx,json,css} *.json",
+      "prettier --single-quote --write src/**/*.{js,jsx,json,css,md} *.{json,md}",
     "format:refmt": "refmt --in-place src/**/*.re",
     "test": "react-scripts test --env=jsdom",
     "prepare": "npm link bs-platform"
@@ -37,7 +37,7 @@
       "prettier --single-quote --write",
       "git add"
     ],
-    "*.json": ["prettier --single-quote --write", "git add"],
+    "*.{json,md}": ["prettier --single-quote --write", "git add"],
     "src/**/*.{re,rei}": ["refmt --in-place", "git add"]
   },
   "devDependencies": {
