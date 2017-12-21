@@ -15,6 +15,6 @@ This is a simplified version of Tetris, written in [Reason React](https://reason
 * [ ] Hard drop
 * [ ] Soft drop increases game tick (rather than moves it down 1 cell)
 * [ ] [SRS](http://tetris.wikia.com/wiki/SRS) - MAYBE.... It's a lot of logic
-* [ ] Beautify CSS
-* [ ] Mobile friendly
-* [ ] Get rid of absolute sizing within the Board component
+* [x] Beautify CSS
+* [x] Mobile friendly
+* [x] Get rid of absolute sizing within the Board component
