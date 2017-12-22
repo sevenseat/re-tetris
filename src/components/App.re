@@ -3,6 +3,7 @@
 type state = {
   game: Tetris.game,
   softDrop: bool,
+  muted: bool,
   timerId: ref(option(Js.Global.intervalId))
 };
 
@@ -33,7 +34,7 @@ let setTimer = (game, softDrop, reduce) => {
 
 let make = (_children) => {
   ...component,
-  initialState: () => {game: Tetris.init(), softDrop: false, timerId: ref(None)},
+  initialState: () => {game: Tetris.init(), softDrop: false, muted: false, timerId: ref(None)},
   didMount: (self) => {
     self.state.timerId := setTimer(self.state.game, self.state.softDrop, self.reduce);
     ReasonReact.NoUpdate
@@ -77,6 +78,7 @@ let make = (_children) => {
       ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.TurnRight)})
     | KeyDown(17 | 90 | 99 | 103) =>
       ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.TurnLeft)})
+    | KeyDown(77) => ReasonReact.Update({...state, muted: ! state.muted})
     | KeyDown(_) => ReasonReact.NoUpdate
     | KeyUp(40 | 98) => ReasonReact.Update({...state, softDrop: false})
     | KeyUp(_) => ReasonReact.NoUpdate
@@ -99,6 +101,12 @@ let make = (_children) => {
           gameOver=(! Tetris.isActive(state.game))
           score=(Tetris.getScore(state.game))
           onReplay=(reduce((_event) => Restart))
+        />
+        <audio
+          src="/sound/theme.mp3"
+          autoPlay=Js.true_
+          loop=Js.true_
+          muted=(Js.Boolean.to_js_boolean(state.muted))
         />
       </EventLayer>
     </div>
