@@ -9,7 +9,8 @@ let unmute: string = [%bs.raw {|require('../media/unmute.svg')|}];
 type state = {
   game: Tetris.game,
   softDrop: bool,
-  muted: bool,
+  isMuted: bool,
+  isPaused: bool,
   timerId: ref(option(Js.Global.intervalId))
 };
 
@@ -19,6 +20,7 @@ type action =
   | KeyUp(int)
   | Swipe(EventLayer.direction)
   | ToggleSound
+  | TogglePause
   | Restart;
 
 let elementState = (label, value) =>
@@ -44,42 +46,47 @@ let component = ReasonReact.reducerComponent("App");
 
 let make = (_children) => {
   ...component,
-  initialState: () => {game: Tetris.init(), softDrop: false, muted: false, timerId: ref(None)},
+  initialState: () => {
+    game: Tetris.init(),
+    softDrop: false,
+    isMuted: false,
+    isPaused: false,
+    timerId: ref(None)
+  },
   didMount: (self) => {
     self.state.timerId := setTimer(self.state.game, self.state.softDrop, self.reduce);
     ReasonReact.NoUpdate
   },
-  didUpdate: ({oldSelf, newSelf}) =>
-    Tetris.getLevel(oldSelf.state.game) === Tetris.getLevel(newSelf.state.game)
-    && oldSelf.state.softDrop === newSelf.state.softDrop ?
-      () :
-      {
-        switch oldSelf.state.timerId^ {
-        | None => ()
-        | Some(intervalId) => Js.Global.clearInterval(intervalId)
-        };
-        newSelf.state.timerId :=
-          setTimer(newSelf.state.game, newSelf.state.softDrop, newSelf.reduce)
-      },
+  didUpdate: ({oldSelf, newSelf}) => {
+    let levelChanged = Tetris.getLevel(oldSelf.state.game) !== Tetris.getLevel(newSelf.state.game);
+    let softDropChanged = oldSelf.state.softDrop !== newSelf.state.softDrop;
+    switch (levelChanged || softDropChanged) {
+    | false => ()
+    | true =>
+      switch oldSelf.state.timerId^ {
+      | None => ()
+      | Some(intervalId) => Js.Global.clearInterval(intervalId)
+      };
+      newSelf.state.timerId := setTimer(newSelf.state.game, newSelf.state.softDrop, newSelf.reduce)
+    }
+  },
   reducer: (action, state) =>
-    switch action {
-    | KeyDown(37 | 100)
-    | Swipe(EventLayer.Left) => takeAction(state, Tetris.Left)
-    | KeyDown(39 | 102)
-    | Swipe(EventLayer.Right) => takeAction(state, Tetris.Right)
-    | KeyDown(38 | 88 | 97 | 101 | 105)
-    | Swipe(EventLayer.Up) => takeAction(state, Tetris.TurnRight)
-    | KeyDown(17 | 90 | 99 | 103) => takeAction(state, Tetris.TurnLeft)
-    | KeyDown(32 | 104)
-    | Swipe(EventLayer.Down) => takeAction(state, Tetris.HardDrop)
-    | KeyDown(40 | 98) => ReasonReact.Update({...state, softDrop: true})
-    | KeyUp(40 | 98) => ReasonReact.Update({...state, softDrop: false})
-    | KeyDown(77)
-    | ToggleSound => ReasonReact.Update({...state, muted: ! state.muted})
-    | KeyDown(_)
-    | KeyUp(_) => ReasonReact.NoUpdate
-    | Tick => takeAction(state, Tetris.Down)
-    | Restart => ReasonReact.Update({...state, game: Tetris.init()})
+    switch (state.isPaused, action) {
+    | (_, KeyDown(80) | TogglePause) => ReasonReact.Update({...state, isPaused: ! state.isPaused})
+    | (_, KeyDown(77) | ToggleSound) => ReasonReact.Update({...state, isMuted: ! state.isMuted})
+    | (false, KeyDown(37 | 100) | Swipe(EventLayer.Left)) => takeAction(state, Tetris.Left)
+    | (false, KeyDown(39 | 102) | Swipe(EventLayer.Right)) => takeAction(state, Tetris.Right)
+    | (false, KeyDown(38 | 88 | 97 | 101 | 105) | Swipe(EventLayer.Up)) =>
+      takeAction(state, Tetris.TurnRight)
+    | (false, KeyDown(17 | 90 | 99 | 103)) => takeAction(state, Tetris.TurnLeft)
+    | (false, KeyDown(32 | 104) | Swipe(EventLayer.Down)) => takeAction(state, Tetris.HardDrop)
+    | (false, KeyDown(40 | 98)) => ReasonReact.Update({...state, softDrop: true})
+    | (false, KeyUp(40 | 98)) => ReasonReact.Update({...state, softDrop: false})
+    | (_, KeyDown(_) | KeyUp(_))
+    | (true, Swipe(_))
+    | (true, Tick) => ReasonReact.NoUpdate
+    | (false, Tick) => takeAction(state, Tetris.Down)
+    | (_, Restart) => ReasonReact.Update({...state, game: Tetris.init()})
     },
   render: ({state, reduce}) =>
     <div
@@ -87,14 +94,14 @@ let make = (_children) => {
       onKeyUp=(reduce((e) => KeyUp(ReactEventRe.Keyboard.which(e))))>
       <EventLayer className="App" onAction=(reduce((direction) => Swipe(direction)))>
         <h1 className="Title"> (ReasonReact.stringToElement("Re-Tetris")) </h1>
-        <Board className="Board" board=(Tetris.getBoard(state.game)) />
+        <Board className="board" board=(Tetris.getBoard(state.game)) />
         <div className="Game-info">
           (elementState("Lines", Tetris.getLines(state.game)))
           (elementState("Level", Tetris.getLevel(state.game)))
           (elementState("Score", Tetris.getScore(state.game)))
           <img
             className="Mute-button"
-            src=(state.muted ? mute : unmute)
+            src=(state.isMuted ? mute : unmute)
             onClick=(reduce((_event) => ToggleSound))
           />
         </div>
@@ -107,7 +114,7 @@ let make = (_children) => {
           src=theme
           autoPlay=Js.true_
           loop=Js.true_
-          muted=(Js.Boolean.to_js_boolean(state.muted))
+          muted=(Js.Boolean.to_js_boolean(state.isMuted))
         />
       </EventLayer>
     </div>
