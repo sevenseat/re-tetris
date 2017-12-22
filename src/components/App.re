@@ -22,7 +22,8 @@ let elementState = (label, value) =>
     <h3> (ReasonReact.stringToElement(string_of_int(value))) </h3>
   </div>;
 
-let component = ReasonReact.reducerComponent("App");
+let takeAction = (state, action) =>
+  ReasonReact.Update({...state, game: Tetris.act(state.game, action)});
 
 let setTimer = (game, softDrop, reduce) => {
   let prevLevel = float_of_int(Tetris.getLevel(game) - 1);
@@ -33,6 +34,8 @@ let setTimer = (game, softDrop, reduce) => {
     )
   )
 };
+
+let component = ReasonReact.reducerComponent("App");
 
 let make = (_children) => {
   ...component,
@@ -55,36 +58,21 @@ let make = (_children) => {
       },
   reducer: (action, state) =>
     switch action {
-    | Swipe(direction) =>
-      ReasonReact.Update({
-        ...state,
-        game:
-          Tetris.act(
-            state.game,
-            switch direction {
-            | EventLayer.Left => Tetris.Left
-            | EventLayer.Right => Tetris.Right
-            | EventLayer.Up => Tetris.TurnRight
-            | EventLayer.Down => Tetris.Down
-            }
-          )
-      })
-    | KeyDown(37 | 100) =>
-      ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.Left)})
-    | KeyDown(39 | 102) =>
-      ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.Right)})
+    | Swipe(EventLayer.Left) => takeAction(state, Tetris.Left)
+    | Swipe(EventLayer.Right) => takeAction(state, Tetris.Right)
+    | Swipe(EventLayer.Up) => takeAction(state, Tetris.TurnRight)
+    | Swipe(EventLayer.Down) => takeAction(state, Tetris.HardDrop)
+    | KeyDown(37 | 100) => takeAction(state, Tetris.Left)
+    | KeyDown(39 | 102) => takeAction(state, Tetris.Right)
     | KeyDown(40 | 98) => ReasonReact.Update({...state, softDrop: true})
-    | KeyDown(32 | 104) =>
-      ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.HardDrop)})
-    | KeyDown(38 | 88 | 97 | 101 | 105) =>
-      ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.TurnRight)})
-    | KeyDown(17 | 90 | 99 | 103) =>
-      ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.TurnLeft)})
+    | KeyDown(32 | 104) => takeAction(state, Tetris.HardDrop)
+    | KeyDown(38 | 88 | 97 | 101 | 105) => takeAction(state, Tetris.TurnRight)
+    | KeyDown(17 | 90 | 99 | 103) => takeAction(state, Tetris.TurnLeft)
     | KeyDown(77) => ReasonReact.Update({...state, muted: ! state.muted})
     | KeyDown(_) => ReasonReact.NoUpdate
     | KeyUp(40 | 98) => ReasonReact.Update({...state, softDrop: false})
     | KeyUp(_) => ReasonReact.NoUpdate
-    | Tick => ReasonReact.Update({...state, game: Tetris.act(state.game, Tetris.Down)})
+    | Tick => takeAction(state, Tetris.Down)
     | Restart => ReasonReact.Update({...state, game: Tetris.init()})
     },
   render: ({state, reduce}) =>
