@@ -12,8 +12,7 @@ type direction =
 
 type action =
   | TouchStart(touchData)
-  | TouchEnd(touchData)
-  | KeyDown(int);
+  | TouchEnd(touchData);
 
 type state = {
   touchStart: option(touchData),
@@ -58,18 +57,13 @@ let make = (~onAction, ~className=?, children) => {
       ignore(ReactDOMRe.domElementToObj(field)##focus());
       ReasonReact.NoUpdate
     },
-  reducer: (action, state) => {
-    let keyReducer = (direction) =>
-      ReasonReact.UpdateWithSideEffects(
-        {...state, touchStart: None},
-        (_self) => onAction(direction)
-      );
+  reducer: (action, state) =>
     switch (action, state.touchStart) {
-    | (KeyDown(37), _) => keyReducer(Left)
-    | (KeyDown(38), _) => keyReducer(Up)
-    | (KeyDown(39), _) => keyReducer(Right)
-    | (KeyDown(40), _) => keyReducer(Down)
-    | (KeyDown(_), _) => ReasonReact.NoUpdate
+    /* | (KeyDown(37), _) => keyReducer(Left)
+       | (KeyDown(38), _) => keyReducer(Up)
+       | (KeyDown(39), _) => keyReducer(Right)
+       | (KeyDown(40), _) => keyReducer(Down)
+       | (KeyDown(_), _) => ReasonReact.NoUpdate */
     | (TouchStart(td), _) => ReasonReact.Update({...state, touchStart: Some(td)})
     | (TouchEnd(_td), None) => ReasonReact.NoUpdate
     | (TouchEnd(td), Some(start)) =>
@@ -81,11 +75,9 @@ let make = (~onAction, ~className=?, children) => {
         )
       | None => ReasonReact.NoUpdate
       }
-    }
-  },
+    },
   render: ({reduce, handle}) =>
     <div
-      onKeyDown=(reduce((e) => KeyDown(ReactEventRe.Keyboard.which(e))))
       onTouchStart=(reduce((e) => TouchStart(getTouchData(ReactEventRe.Touch.targetTouches, e))))
       onTouchEnd=(reduce((e) => TouchEnd(getTouchData(ReactEventRe.Touch.changedTouches, e))))
       onTouchMove=((e) => ReactEventRe.Touch.preventDefault(e))
