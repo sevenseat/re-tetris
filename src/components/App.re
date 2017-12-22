@@ -1,6 +1,10 @@
 [%bs.raw {|require('./App.css')|}];
 
-let theme: string = [%bs.raw {|require('../sound/theme.mp3')|}];
+let theme: string = [%bs.raw {|require('../media/theme.mp3')|}];
+
+let mute: string = [%bs.raw {|require('../media/mute.svg')|}];
+
+let unmute: string = [%bs.raw {|require('../media/unmute.svg')|}];
 
 type state = {
   game: Tetris.game,
@@ -14,6 +18,7 @@ type action =
   | KeyDown(int)
   | KeyUp(int)
   | Swipe(EventLayer.direction)
+  | ToggleSound
   | Restart;
 
 let elementState = (label, value) =>
@@ -69,7 +74,8 @@ let make = (_children) => {
     | Swipe(EventLayer.Down) => takeAction(state, Tetris.HardDrop)
     | KeyDown(40 | 98) => ReasonReact.Update({...state, softDrop: true})
     | KeyUp(40 | 98) => ReasonReact.Update({...state, softDrop: false})
-    | KeyDown(77) => ReasonReact.Update({...state, muted: ! state.muted})
+    | KeyDown(77)
+    | ToggleSound => ReasonReact.Update({...state, muted: ! state.muted})
     | KeyDown(_)
     | KeyUp(_) => ReasonReact.NoUpdate
     | Tick => takeAction(state, Tetris.Down)
@@ -86,6 +92,11 @@ let make = (_children) => {
           (elementState("Lines", Tetris.getLines(state.game)))
           (elementState("Level", Tetris.getLevel(state.game)))
           (elementState("Score", Tetris.getScore(state.game)))
+          <img
+            className="Mute-button"
+            src=(state.muted ? mute : unmute)
+            onClick=(reduce((_event) => ToggleSound))
+          />
         </div>
         <GameOver
           gameOver=(! Tetris.isActive(state.game))
