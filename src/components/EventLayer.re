@@ -59,11 +59,6 @@ let make = (~onAction, ~className=?, children) => {
     },
   reducer: (action, state) =>
     switch (action, state.touchStart) {
-    /* | (KeyDown(37), _) => keyReducer(Left)
-       | (KeyDown(38), _) => keyReducer(Up)
-       | (KeyDown(39), _) => keyReducer(Right)
-       | (KeyDown(40), _) => keyReducer(Down)
-       | (KeyDown(_), _) => ReasonReact.NoUpdate */
     | (TouchStart(td), _) => ReasonReact.Update({...state, touchStart: Some(td)})
     | (TouchEnd(_td), None) => ReasonReact.NoUpdate
     | (TouchEnd(td), Some(start)) =>
