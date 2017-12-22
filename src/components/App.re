@@ -1,5 +1,7 @@
 [%bs.raw {|require('./App.css')|}];
 
+let theme: string = [%bs.raw {|require('../sound/theme.mp3')|}];
+
 type state = {
   game: Tetris.game,
   softDrop: bool,
@@ -103,7 +105,7 @@ let make = (_children) => {
           onReplay=(reduce((_event) => Restart))
         />
         <audio
-          src="/sound/theme.mp3"
+          src=theme
           autoPlay=Js.true_
           loop=Js.true_
           muted=(Js.Boolean.to_js_boolean(state.muted))
