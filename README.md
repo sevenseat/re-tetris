@@ -20,5 +20,5 @@ This is a simplified version of Tetris, written in [Reason React](https://reason
 * [x] Get rid of absolute sizing within the Board component
 * [ ] Help Screen with Keys
 * [x] Music
-* [ ] Mute Button
+* [x] Mute Button
 * [ ] Improved GameOver
