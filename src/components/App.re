@@ -96,7 +96,7 @@ let make = (_children) => {
       onKeyUp=(reduce((e) => KeyUp(ReactEventRe.Keyboard.which(e))))>
       <EventLayer className="App" onAction=(reduce((direction) => Swipe(direction)))>
         <h1 className="Title"> (ReasonReact.stringToElement("Re-Tetris")) </h1>
-        <Board className="board" board=(Tetris.getBoard(state.game)) />
+        <Board className="board" isPaused=state.isPaused board=(Tetris.getBoard(state.game)) />
         <div className="Game-info">
           (elementState("Lines", Tetris.getLines(state.game)))
           (elementState("Level", Tetris.getLevel(state.game)))

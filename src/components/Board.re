@@ -17,7 +17,7 @@ let renderCell = (cell) => {
   <div className={j|cell cell-$c|j} />
 };
 
-let make = (~board, ~className, _children) => {
+let make = (~board, ~className, ~isPaused, _children) => {
   ...component,
   render: (_self) =>
     <div className>
@@ -25,7 +25,7 @@ let make = (~board, ~className, _children) => {
         board
         |> List.rev
         |> List.flatten
-        |> List.map(renderCell)
+        |> List.map((cell) => isPaused ? <div className="cell cell-paused" /> : renderCell(cell))
         |> Array.of_list
         |> ReasonReact.arrayToElement
       )

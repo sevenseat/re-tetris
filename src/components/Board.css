@@ -25,6 +25,10 @@
 .cell-blank {
 }
 
+.cell-paused {
+  background-color: #1b3742;
+}
+
 .cell-I {
   background-color: cyan;
 }
