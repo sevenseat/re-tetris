@@ -1,0 +1,44 @@
+.help {
+  position: absolute;
+  width: 360px;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  z-index: 999999;
+  background-color: #3f51b5;
+  border: solid 1px #757de8;
+  text-transform: uppercase;
+  opacity: 0.95;
+  cursor: pointer;
+}
+.help h2 {
+  margin: 0px 0px 10px 0px;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 36px;
+}
+.help .helpGrid {
+  display: grid;
+  grid-template-columns: 1fr 1em 1fr;
+  grid-row-gap: 1em;
+  grid-column-gap: 0.2em;
+}
+.help div {
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.help .keys {
+  grid-column: 1;
+  font-weight: bold;
+  text-align: right;
+}
+.help .colon {
+  grid-column: 2;
+  text-align: center;
+}
+.help .action {
+  grid-column: 3;
+  text-align: left;
+}

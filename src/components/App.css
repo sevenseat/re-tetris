@@ -5,7 +5,7 @@
   grid-template-rows: 75px 80vh;
   grid-template-columns: 40vh 100px;
   grid-template-areas: 'title title' 'board game-info';
-  font-family: Oswald-light, sans-serif;
+  font-family: sans-serif;
   text-transform: uppercase;
   background-color: #37474f;
   color: #ffffff;
@@ -23,6 +23,10 @@
 
 .Game-info {
   grid-area: game-info;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 10px;
 }
 
 h1,
@@ -45,13 +49,14 @@ h2 {
 }
 
 h3 {
-  font-size: 38px;
+  font-size: 36px;
   letter-spacing: 1px;
   margin-top: 1px;
 }
 
-.Mute-button {
-  position: absolute;
-  bottom: var(--app-padding);
-  right: var(--app-padding);
+.controls {
+  width: 100%;
+  display: flex;
+  align-items: center; /* Vertical center alignment */
+  justify-content: space-between;
 }

@@ -72,7 +72,7 @@ let make = (_children) => {
   },
   reducer: (action, state) =>
     switch (state.isPaused, action) {
-    | (_, KeyDown(80) | TogglePause) => ReasonReact.Update({...state, isPaused: ! state.isPaused})
+    | (_, KeyDown(72) | TogglePause) => ReasonReact.Update({...state, isPaused: ! state.isPaused})
     | (_, KeyDown(77) | ToggleSound) => ReasonReact.Update({...state, isMuted: ! state.isMuted})
     | (false, KeyDown(37 | 100) | Swipe(EventLayer.Left)) => takeAction(state, Tetris.Left)
     | (false, KeyDown(39 | 102) | Swipe(EventLayer.Right)) => takeAction(state, Tetris.Right)
@@ -99,12 +99,14 @@ let make = (_children) => {
           (elementState("Lines", Tetris.getLines(state.game)))
           (elementState("Level", Tetris.getLevel(state.game)))
           (elementState("Score", Tetris.getScore(state.game)))
-          <img
-            className="Mute-button"
-            src=(state.isMuted ? mute : unmute)
-            onClick=(reduce((_event) => ToggleSound))
-          />
+          <div className="controls">
+            <a onClick=(reduce((_event) => TogglePause))>
+              (ReasonReact.stringToElement("Help"))
+            </a>
+            <img src=(state.isMuted ? mute : unmute) onClick=(reduce((_event) => ToggleSound)) />
+          </div>
         </div>
+        <Help visible=state.isPaused />
         <GameOver
           gameOver=(! Tetris.isActive(state.game))
           score=(Tetris.getScore(state.game))
