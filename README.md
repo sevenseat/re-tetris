@@ -18,7 +18,7 @@ This is a simplified version of Tetris, written in [Reason React](https://reason
 * [x] Beautify CSS
 * [x] Mobile friendly
 * [x] Get rid of absolute sizing within the Board component
-* [ ] Help Screen with Keys
+* [x] Help Screen with Keys
 * [x] Music
 * [x] Mute Button
 * [ ] Improved GameOver
