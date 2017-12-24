@@ -72,7 +72,9 @@ let make = (_children) => {
   },
   reducer: (action, state) =>
     switch (state.isPaused, action) {
-    | (_, KeyDown(72) | TogglePause) => ReasonReact.Update({...state, isPaused: ! state.isPaused})
+    | (true, KeyDown(_))
+    | (_, TogglePause)
+    | (false, KeyDown(72)) => ReasonReact.Update({...state, isPaused: ! state.isPaused})
     | (_, KeyDown(77) | ToggleSound) => ReasonReact.Update({...state, isMuted: ! state.isMuted})
     | (false, KeyDown(37 | 100) | Swipe(EventLayer.Left)) => takeAction(state, Tetris.Left)
     | (false, KeyDown(39 | 102) | Swipe(EventLayer.Right)) => takeAction(state, Tetris.Right)
